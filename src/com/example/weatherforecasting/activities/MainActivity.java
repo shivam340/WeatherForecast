@@ -30,6 +30,10 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.example.weatherforecasting.R;
+import com.example.weatherforecasting.models.DataModel;
+import com.example.weatherforecasting.models.ForcastModel;
+import com.example.weatherforecasting.models.TemperatureModel;
+import com.example.weatherforecasting.models.WhetherModel;
 import com.example.weatherforecasting.utilities.App;
 import com.example.weatherforecasting.utilities.ConnectionDetector;
 
@@ -42,6 +46,9 @@ public class MainActivity extends Activity {
 	private ArrayList<String> mCityItems  = new ArrayList<String>();
 	private ArrayAdapter<String> mAdapter = null; 
 	private Activity mActivity = null;
+	private ArrayList<DataModel> mLocalData = new ArrayList<DataModel>();
+	private ArrayList<ForcastModel> mLocalForCastData = new ArrayList<ForcastModel>() ;
+	public static ArrayList<ForcastModel> mForcastModels = new ArrayList<ForcastModel>();
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -205,6 +212,18 @@ public class MainActivity extends Activity {
 		protected void onPreExecute() {
 
 
+			if(!mForcastModels.isEmpty())
+			{
+				mForcastModels.clear();
+			}
+			
+			if(!mCityItems.isEmpty())
+			{
+				mCityItems.clear();
+			}
+			
+		
+			
 			if(mActivity!=null)
 			{
 				mProgressDialog = new ProgressDialog(mActivity, ProgressDialog.THEME_HOLO_LIGHT);
@@ -257,6 +276,20 @@ public class MainActivity extends Activity {
 				mProgressDialog=null;
 			}
 
+			
+			for(int i=0;i<mLocalForCastData.size();i++)
+			{
+				if(!mForcastModels.contains(mLocalForCastData.get(i)))
+				{
+					mForcastModels.add(mLocalForCastData.get(i));
+					mCityItems.add(mLocalForCastData.get(i).getName());
+					
+					if(mAdapter!=null)
+					{
+						mAdapter.notifyDataSetChanged();
+					}
+				}
+			}
 
 		}  // end of onPostExecute
 
@@ -269,7 +302,6 @@ public class MainActivity extends Activity {
 
 			// initialize http connection
 			HttpClient client =new DefaultHttpClient();
-
 			HttpGet get=new HttpGet(App.URL_FORECAST+""+city+"&cnt=14&APPID="+App.API_KEY);
 
 			try {
@@ -298,7 +330,6 @@ public class MainActivity extends Activity {
 					builder=null;
 
 					if(statusPic.isEmpty()) {
-
 						return false;
 					}
 					else {
@@ -324,13 +355,34 @@ public class MainActivity extends Activity {
 
 							for(int i=0; i<list.length(); i++) {
 
-								App.Log(App.D,"list data is "+(i+1),list.getJSONObject(i).toString());
+					
+								DataModel dataModel= insertDataInModel(city,list.getJSONObject(i));
+								
+								if(dataModel!=null) {
+									mLocalData.add(dataModel);
+								}
+								else {
+									App.Log(App.D, "Download ","No Data  ");
+								}
+								
+/*								App.Log(App.D,"list data is "+(i+1),list.getJSONObject(i).toString());
 								App.Log(App.D,"whether data is  "+(i+1),list.getJSONObject(i).getJSONArray("weather").toString());
 								App.Log(App.D,"temp data is  "+(i+1),list.getJSONObject(i).getJSONObject("temp").toString());
 								App.Log(App.D,"temp data is  "+(i+1),list.getJSONObject(i).getJSONObject("temp").toString());
 								App.Log(App.D,"temp data is  "+(i+1),list.getJSONObject(i).getJSONObject("temp").toString());
-
+*/
 							}
+							
+							App.Log(App.D, " data model 2  size is ",""+mLocalData.size());
+							
+							if(!mLocalData.isEmpty()) {
+								
+								App.Log(App.D, " data model 2  size is ",""+mLocalData.size());
+								ForcastModel forcastModel = new ForcastModel(city, mLocalData);
+								mLocalForCastData.add(forcastModel);
+								mLocalData.clear();
+							}
+									
 
 							return true;
 
@@ -348,22 +400,96 @@ public class MainActivity extends Activity {
 
 			catch (JSONException e) {
 
-				e.printStackTrace();
+				App.Log(App.E, "Error while parsing json Data in download()", ""+e.getMessage());
+				
 			}
 
 			catch (ClientProtocolException e) {
 
-				e.printStackTrace();
+				App.Log(App.E, "Error while fetching  Data in download() clientProtcolException. ", ""+e.getMessage());
+				
 			} 
 			catch (IOException e) {
 
-				e.printStackTrace();
+				App.Log(App.E, "Error while fectching  Data in download() IOException. ", ""+e.getMessage());
+				
 			}
 
 			return false;
 
 		} // end of download()
 
+		
+		/**
+		 *  takes json object and return DataModel for given city 
+		 * @param String name
+		 * @param JSONObject data
+		 * @return object of DataModel
+		 */
+		private DataModel insertDataInModel(String Name, JSONObject data) {
+			
+			try {
+			
+		/*{"day":294.99,"min":281.06,"max":294.99,"night":281.06,"eve":293.21,"morn":294.99}
+		 */
+				
+				App.Log(App.D, "list data is ",data.toString());
+				
+				App.Log(App.D, "whether data is  ",""+data.getJSONArray("weather").toString());
+				App.Log(App.D, "temp data is  ",""+data.getJSONObject("temp"));
+				/*App.log("temp data is  ",list.getJSONObject(i).getJSONObject("temp").toString());
+				App.log("temp data is  ",list.getJSONObject(i).getJSONObject("temp").toString());
+				*/
+			JSONObject temp = data.getJSONObject("temp");
+			TemperatureModel temperatureModel = new TemperatureModel(temp.getDouble("day"), temp.getDouble("night"),temp.getDouble("morn"), temp.getDouble("eve"),temp.getDouble("min"), temp.getDouble("max"));
+
+			
+			App.Log(App.D, "Temp  ",""+temperatureModel.getDay());
+			App.Log(App.D, "Temp  ",""+temperatureModel.getNight());
+			App.Log(App.D, "Temp  ",""+temperatureModel.getMorn());
+			App.Log(App.D, "Temp  ",""+temperatureModel.getEve());
+			App.Log(App.D, "Temp  ",""+temperatureModel.getMin());
+			App.Log(App.D, "Temp  ",""+temperatureModel.getMax());
+			
+		
+			
+			/* [{"id":800,"main":"Clear","description":"sky is clear","icon":"01d"}]
+			 */
+			JSONArray whetherArray = data.getJSONArray("weather");
+			JSONObject whetherObject = whetherArray.getJSONObject(0);
+
+			WhetherModel whetherModel = new WhetherModel(whetherObject.getString("description"), whetherObject.getString("icon"), whetherObject.getString("id"), whetherObject.getString("main"));
+
+			App.Log(App.D, "Wheather  ",""+whetherModel.getDescription());
+			App.Log(App.D, "Wheather ",""+whetherModel.getMain());
+			App.Log(App.D, "pressure ",""+data.getDouble("pressure"));
+			App.Log(App.D, "speed ",""+data.getDouble("speed"));
+			App.Log(App.D, "deg ",""+data.getDouble("deg"));
+			App.Log(App.D, "clouds ",""+data.getDouble("clouds"));
+			
+	/*		12-17 16:59:53.815: D/list data is 1(22878): {"dt":1418799600,"temp":{"day":294.99,"min":281.06,"max":294.99,"night":281.06,"eve":293.21,"morn":294.99},"pressure":951.1,
+	 * "humidity":40,"weather":[{"id":800,"main":"Clear","description":"sky is clear","icon":"01d"}],"speed":4.36,"deg":77,"clouds":0}
+			12-17 16:59:53.815: D/whether data is  1(22878): [{"id":800,"main":"Clear","description":"sky is clear","icon":"01d"}]
+	*/
+			DataModel dataModel = new DataModel( temperatureModel, whetherModel, data.getDouble("humidity"), data.getDouble("pressure"),data.getDouble("speed"),data.getDouble("deg"),data.getDouble("clouds"));
+			
+			
+			return dataModel;
+			
+			}
+			
+			catch (JSONException e) {
+
+				App.Log(App.E, "Error while parsing json Data in insertDataInModel()", ""+e.getMessage());
+			}
+
+
+			
+			return null;
+			
+		} // end of insertDataInModel()
+		
+		
 	} // end of AsyncFetchWeatherData
 
 } // end of MainActivity
