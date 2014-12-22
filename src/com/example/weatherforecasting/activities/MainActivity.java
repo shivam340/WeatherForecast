@@ -19,6 +19,7 @@ import org.json.JSONObject;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
@@ -51,7 +52,7 @@ public class MainActivity extends Activity {
 	private Activity mActivity = null;
 	private ArrayList<DataModel> mLocalData = new ArrayList<DataModel>();
 	private ArrayList<ForcastModel> mLocalForCastData = new ArrayList<ForcastModel>() ;
-	public static ArrayList<ForcastModel> mForcastModels = new ArrayList<ForcastModel>();
+	public static ArrayList<ForcastModel> sForcastModels = new ArrayList<ForcastModel>();
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -194,6 +195,12 @@ public class MainActivity extends Activity {
 
 			case R.id.list_main_data:
 
+				Toast.makeText(getApplicationContext(), ""+sForcastModels.get(position).getName(), Toast.LENGTH_SHORT).show();
+				
+				Intent intent = new Intent(MainActivity.this, CityWeatherActivity.class);
+				intent.putExtra("position",position);
+				startActivity(intent);
+	
 
 				break;
 
@@ -217,16 +224,27 @@ public class MainActivity extends Activity {
 		protected void onPreExecute() {
 
 
-			if(!mForcastModels.isEmpty())
+			if(!sForcastModels.isEmpty())
 			{
-				mForcastModels.clear();
+				sForcastModels.clear();
 			}
 			
 			if(!mCityItems.isEmpty())
 			{
 				mCityItems.clear();
 			}
-			
+
+
+			if(!mLocalData.isEmpty())
+			{
+				mLocalData.clear();
+			}
+
+
+			if(!mLocalForCastData.isEmpty())
+			{
+				mLocalForCastData.clear();
+			}
 		
 			
 			if(mActivity!=null)
@@ -258,10 +276,10 @@ public class MainActivity extends Activity {
 			
 				for(int i=0;i<mLocalForCastData.size();i++) {
 					
-					if(!mForcastModels.contains(mLocalForCastData.get(i))) {
+					if(!sForcastModels.contains(mLocalForCastData.get(i))) {
 						
-						mForcastModels.add(mLocalForCastData.get(i));
-						mCityItems.add(mForcastModels.get(i).getName());
+						sForcastModels.add(mLocalForCastData.get(i));
+						mCityItems.add(sForcastModels.get(i).getName());
 			
 						mTextViewListTitle.setVisibility(View.VISIBLE);
 						mViewSep1.setVisibility(View.VISIBLE);
@@ -330,10 +348,10 @@ public class MainActivity extends Activity {
 			
 			for(int i=0;i<mLocalForCastData.size();i++) {
 				
-				if(!mForcastModels.contains(mLocalForCastData.get(i))) {
+				if(!sForcastModels.contains(mLocalForCastData.get(i))) {
 					
-					mForcastModels.add(mLocalForCastData.get(i));
-					mCityItems.add(mForcastModels.get(i).getName());
+					sForcastModels.add(mLocalForCastData.get(i));
+					mCityItems.add(sForcastModels.get(i).getName());
 					
 					if(mAdapter!=null) {
 						
