@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    >
+<RelativeLayout 
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    >
+    
+
+    <TextView 
+    android:id="@+id/txt_day_title"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_centerHorizontal="true"
+    android:text="day1 Weather Details For City"
+    android:textSize="18sp"
+    android:textStyle="bold"
+    android:gravity="center"
+    android:textColor="#000000"
+    />		
+    
+
+<TextView 
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:text="Temperature Details"
+    android:textColor="#000000"
+    android:textSize="16sp"
+    android:textStyle="bold"
+    android:gravity="center"
+    android:id="@+id/txt_day_tempdetails"
+   	android:layout_below="@id/txt_day_title"
+   	android:layout_marginTop="10dip"
+    />		
+
+
+<TextView 
+    android:id="@+id/txt_day_mintemp"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:text="min : "
+     android:textSize="14sp"
+    android:layout_below="@id/txt_day_tempdetails"
+    android:textColor="#000000"
+    android:layout_marginTop="5dip"
+    android:layout_marginLeft="20dip"
+    />		
+
+<TextView 
+    android:id="@+id/txt_day_maxtemp"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:text="max : "
+    android:textSize="14sp"
+    android:layout_below="@id/txt_day_mintemp"
+    android:textColor="#000000"
+    android:layout_marginTop="5dip"
+    android:layout_marginLeft="20dip"
+    />		
+
+
+<TextView 
+    android:id="@+id/txt_day_daytemp"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:text="day : "
+    android:textSize="14sp"
+    android:layout_below="@id/txt_day_maxtemp"
+    android:textColor="#000000"
+    android:layout_marginTop="5dip"
+    android:layout_marginLeft="20dip"
+    />		
+    
+<TextView 
+    android:id="@+id/txt_day_nighttemp"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:text="night : "
+    android:textSize="14sp"
+    android:layout_below="@id/txt_day_daytemp"
+    android:textColor="#000000"
+    android:layout_marginTop="5dip"
+    android:layout_marginLeft="20dip"
+    />		
+    
+<TextView 
+    android:id="@+id/txt_day_morntemp"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:text="morn : "
+    android:textSize="14sp"
+    android:layout_below="@id/txt_day_nighttemp"
+    android:textColor="#000000"
+    android:layout_marginTop="5dip"
+    android:layout_marginLeft="20dip"
+    />		
+
+
+<TextView 
+    android:id="@+id/txt_day_evetemp"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:text="Eve : "
+    android:textSize="14sp"
+    android:layout_below="@id/txt_day_morntemp"
+    android:textColor="#000000"
+    android:layout_marginTop="5dip"
+    android:layout_marginLeft="20dip"
+    />		
+    
+
+
+<TextView 
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:text="Weather Details"
+    android:textColor="#000000"
+    android:textSize="16sp"
+    android:gravity="center"
+    android:textStyle="bold"
+    android:id="@+id/txt_day_whether"
+    android:layout_below="@id/txt_day_evetemp"
+   	android:layout_marginTop="15dip"
+    />		
+    
+
+
+    
+<TextView 
+    android:id="@+id/txt_day_wh_main"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:text="main : "
+    android:textSize="14sp"
+   
+    android:layout_below="@id/txt_day_whether"
+    android:textColor="#000000"
+    android:layout_marginTop="5dip"
+    android:layout_marginLeft="20dip"
+    />		
+
+
+<TextView 
+    android:id="@+id/txt_day_wh_des"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:text="Description  : "
+ 	android:textSize="14sp"
+   
+    android:layout_below="@id/txt_day_wh_main"
+    android:textColor="#000000"
+    android:layout_marginTop="5dip"
+    android:layout_marginLeft="20dip"
+    />		
+    
+
+
+
+<TextView 
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:text="Humidity"
+    android:textColor="#000000"
+    android:textSize="16sp"
+    android:layout_marginLeft="20dp"
+    android:textStyle="bold"
+    android:id="@+id/txt_day_humidity"
+   	android:layout_below="@id/txt_day_wh_des"
+   	android:layout_marginTop="10dip"
+    />		
+
+<TextView 
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:text="speed"
+    android:textColor="#000000"
+    android:textSize="16sp"
+    android:textStyle="bold"
+    android:layout_marginLeft="20dp"
+    android:id="@+id/txt_day_speed"
+   	android:layout_below="@id/txt_day_humidity"
+   	android:layout_marginTop="10dip"
+    />		
+
+<TextView 
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:text="Pressure"
+    android:textColor="#000000"
+    android:textSize="16sp"
+    android:textStyle="bold"
+    android:layout_marginLeft="20dp"
+    android:id="@+id/txt_day_pressure"
+   	android:layout_below="@id/txt_day_speed"
+   	android:layout_marginTop="10dip"
+    />		
+
+
+</RelativeLayout>
+</ScrollView>
