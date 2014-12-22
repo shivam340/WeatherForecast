@@ -1,7 +1,5 @@
 package com.example.weatherforecasting.activities;
 
-import java.util.ArrayList;
-
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
@@ -10,8 +8,13 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Toast;
+
+import java.util.ArrayList;
 
 import com.example.weatherforecasting.R;
+import com.example.weatherforecasting.utilities.App;
+import com.example.weatherforecasting.utilities.ConnectionDetector;
 
 public class MainActivity extends Activity {
 
@@ -20,8 +23,7 @@ public class MainActivity extends Activity {
 	private EditText mEditTextCityNames;
 	private ListView mList;
 	private ArrayList<String> mCityItems  = new ArrayList<String>();
-
-	private  ArrayAdapter<String> mAdapter; 
+	private ArrayAdapter<String> mAdapter; 
 
 
 	@Override
@@ -70,7 +72,16 @@ public class MainActivity extends Activity {
 		
 			case R.id.btn_main_show_data:
 
-
+					if ( checkConditions() ) {
+						
+						// fetch weather data here
+					
+					}
+					else {
+						
+						App.Log(App.D, "criteria does not satisfied" ,"unable to fetch weather information");
+					}
+						
 
 				break;
 
@@ -81,6 +92,53 @@ public class MainActivity extends Activity {
 		
 		}// end of onClick
 
+		
+		private boolean checkConditions() {
+			
+			String data = mEditTextCityNames.getText().toString();
+			
+			if(data != null) {
+			
+				if(data.trim().length()>0) {
+					
+					String cityNames[] = data.split(",");
+					App.Log(App.D,"city names are",""+data);
+					
+					if(cityNames!=null) {
+					
+						ConnectionDetector cd=new ConnectionDetector(getApplicationContext());
+						boolean isInternetPresent = cd.isConnectedToInternet();
+
+						if (isInternetPresent) {
+							
+							//everything is ok.
+							return true;
+						} 
+						else {
+							App.ShowAlertDialog(MainActivity.this, "No Internet Connection","You don't have internet connection.", false);
+						}
+
+					}  //end of if cityNames!=null
+				
+				} // end of if data.length > 0
+				
+				else {
+					
+					Toast.makeText(getApplicationContext(), "Please fill up data properly.", Toast.LENGTH_SHORT).show();
+				}
+			
+			} //end of if data != null
+			
+			else {
+				Toast.makeText(getApplicationContext(), "Please Enter at least one city name.", Toast.LENGTH_SHORT).show();
+			}
+
+			
+			return false;
+			
+		}
+		
+		
 	}  // end of class HandleEventOnClick
 
 	
@@ -100,6 +158,7 @@ public class MainActivity extends Activity {
 				long arg3) {
 			
 			switch (mId) {
+			
 			case R.id.list_main_data:
 				
 				
@@ -114,7 +173,6 @@ public class MainActivity extends Activity {
 	
 		
 	}  // end of class HandleOnItemClick
-	
 	
 	
 } // end of MainActivity
