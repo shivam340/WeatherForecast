@@ -27,6 +27,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.weatherforecasting.R;
@@ -43,6 +44,8 @@ public class MainActivity extends Activity {
 	private Button mButtonShowData = null;
 	private EditText mEditTextCityNames = null ;
 	private ListView mList = null ;
+	private TextView mTextViewListTitle = null;
+	private View mViewSep1 = null , mViewSep2 =null;
 	private ArrayList<String> mCityItems  = new ArrayList<String>();
 	private ArrayAdapter<String> mAdapter = null; 
 	private Activity mActivity = null;
@@ -69,6 +72,9 @@ public class MainActivity extends Activity {
 		mButtonShowData = (Button) findViewById(R.id.btn_main_show_data);
 		mEditTextCityNames = (EditText) findViewById(R.id.edt_main_city_names);
 		mList  = (ListView) findViewById(R.id.list_main_data);
+		mTextViewListTitle  = (TextView) findViewById(R.id.txt_main_list_title);
+		mViewSep1  = findViewById(R.id.view_main_sep1);
+		mViewSep2  = findViewById(R.id.view_main_sep2);
 
 		mButtonShowData.setOnClickListener(new HandleEventOnClick(R.id.btn_main_show_data));
 		mList.setOnItemClickListener(new HandleEventOnItemClick(R.id.list_main_data));
@@ -79,7 +85,6 @@ public class MainActivity extends Activity {
 
 
 	}// end of initUi
-
 
 
 	private class HandleEventOnClick implements View.OnClickListener {
@@ -236,6 +241,50 @@ public class MainActivity extends Activity {
 
 		} // end of onPreExecute
 
+		
+		
+		@Override
+		public void onProgressUpdate(Integer... pa) {
+		
+			
+			if(mProgressDialog!=null) {
+				
+					mProgressDialog.dismiss();
+					mProgressDialog=null;
+			}
+			
+			
+			try {
+			
+				for(int i=0;i<mLocalForCastData.size();i++) {
+					
+					if(!mForcastModels.contains(mLocalForCastData.get(i))) {
+						
+						mForcastModels.add(mLocalForCastData.get(i));
+						mCityItems.add(mForcastModels.get(i).getName());
+			
+						mTextViewListTitle.setVisibility(View.VISIBLE);
+						mViewSep1.setVisibility(View.VISIBLE);
+						mViewSep2.setVisibility(View.VISIBLE);
+						
+						if(mAdapter!=null) {
+							
+							mAdapter.notifyDataSetChanged();
+							
+						}
+					}
+				}
+			
+				
+			}
+			catch(Exception ex)
+			{
+				ex.printStackTrace();
+			}
+			
+		}
+		
+
 		@Override
 		protected String doInBackground(String... params) {
 
@@ -248,6 +297,8 @@ public class MainActivity extends Activity {
 
 					if(download(params[i].trim())) {
 
+						publishProgress(1);
+						
 					}
 					else {
 
@@ -277,15 +328,15 @@ public class MainActivity extends Activity {
 			}
 
 			
-			for(int i=0;i<mLocalForCastData.size();i++)
-			{
-				if(!mForcastModels.contains(mLocalForCastData.get(i)))
-				{
-					mForcastModels.add(mLocalForCastData.get(i));
-					mCityItems.add(mLocalForCastData.get(i).getName());
+			for(int i=0;i<mLocalForCastData.size();i++) {
+				
+				if(!mForcastModels.contains(mLocalForCastData.get(i))) {
 					
-					if(mAdapter!=null)
-					{
+					mForcastModels.add(mLocalForCastData.get(i));
+					mCityItems.add(mForcastModels.get(i).getName());
+					
+					if(mAdapter!=null) {
+						
 						mAdapter.notifyDataSetChanged();
 					}
 				}
