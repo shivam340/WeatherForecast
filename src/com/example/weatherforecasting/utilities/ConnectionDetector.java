@@ -4,8 +4,7 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
-/**
- *  helps to find out Internet's availability.
+/** helps to find out Internet's availability.
  * @author shivam
  */
 public class ConnectionDetector {
@@ -51,7 +50,7 @@ public class ConnectionDetector {
 		}// end of connectivity!=null
 		
 		return false;
-	}
+	}// end of isConnectedToInternet()
 
 	
 	/** return information about wifi's current status.
@@ -71,6 +70,6 @@ public class ConnectionDetector {
 		App.Log(App.D,"Is device connected to  wifi"," "+false);
 		
 		return false;
-	}
+	} // end of isConnectedToWIFI()
 
-}
+} // end of class ConnectionDetector
