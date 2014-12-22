@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+    
+<TextView 
+    android:id="@+id/txt_whether_day"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="day"
+    android:layout_alignParentTop="true"
+    android:layout_alignParentLeft="true"
+    android:layout_marginTop="5dip"
+    android:layout_marginLeft="15dip"
+    />		
+    
+
+<TextView 
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="humidity"
+    android:id="@+id/txt_whether_humidity"
+   	android:layout_below="@id/txt_whether_day"
+   	android:layout_marginTop="5dip"
+    android:layout_marginLeft="15dip"
+    />		
+
+
+<TextView 
+    android:id="@+id/txt_whether_pressure"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="pressure"
+    android:layout_marginTop="5dip"
+    android:layout_marginLeft="150dip"
+    />		
+    
+
+<TextView 
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="description"
+    android:id="@+id/txt_whether_description"
+    android:layout_below="@id/txt_whether_pressure"
+   	android:layout_marginTop="5dip"
+    android:layout_marginLeft="150dip"
+    />		
+    
+
+</RelativeLayout>
