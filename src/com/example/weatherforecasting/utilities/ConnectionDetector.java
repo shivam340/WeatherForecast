@@ -48,7 +48,8 @@ public class ConnectionDetector {
 				return true;
 			}
 
-		}
+		}// end of connectivity!=null
+		
 		return false;
 	}
 
@@ -56,8 +57,7 @@ public class ConnectionDetector {
 	/** return information about wifi's current status.
 	 * @return boolean value.
 	 */
-	private boolean isConnectedToWIFI()
-	{
+	private boolean isConnectedToWIFI() {
 
 		ConnectivityManager connManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
 		NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
@@ -69,6 +69,7 @@ public class ConnectionDetector {
 		}
 
 		App.Log(App.D,"Is device connected to  wifi"," "+false);
+		
 		return false;
 	}
 
