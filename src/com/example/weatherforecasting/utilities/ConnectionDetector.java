@@ -9,12 +9,15 @@ import android.net.NetworkInfo;
  */
 public class ConnectionDetector {
 
-	private Context context;
+	private Context context = null ;
 	public static boolean wifiStatus=false; 
 
 	public ConnectionDetector(Context context) {
 
-		this.context = context;
+		if(context !=null) {
+			this.context = context;	
+		}
+
 	} 
 
 
@@ -24,51 +27,54 @@ public class ConnectionDetector {
 	 */
 	public boolean isConnectedToInternet() {
 
-		ConnectivityManager connectivity = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+		if(context != null) {
 
-		
-		// checks for packet data
-		if (connectivity != null) {
+			ConnectivityManager connectivity = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
 
-			NetworkInfo[] info = connectivity.getAllNetworkInfo();
-			if (info != null) { 
+			// checks for packet data
+			if (connectivity != null) {
 
-				for (int i = 0; i < info.length; i++) {
+				NetworkInfo[] info = connectivity.getAllNetworkInfo();
+				if (info != null) { 
 
-					if (info[i].getState() == NetworkInfo.State.CONNECTED) {
-						return true;
-					}
-					
-				}// end of for
-			}  
-			
-			// checks for WiFi
-			if(isConnectedToWIFI()) {
-				return true;
-			}
+					for (int i = 0; i < info.length; i++) {
 
-		}// end of connectivity!=null
-		
+						if (info[i].getState() == NetworkInfo.State.CONNECTED) {
+							return true;
+						}
+
+					}// end of for
+				}  
+
+				// checks for WiFi
+				if(isConnectedToWIFI()) {
+					return true;
+				}
+
+			}// end of connectivity!=null
+		}
 		return false;
 	}// end of isConnectedToInternet()
 
-	
+
 	/** return information about wifi's current status.
 	 * @return boolean value.
 	 */
 	private boolean isConnectedToWIFI() {
 
-		ConnectivityManager connManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-		NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+		if(context != null) {
 
-		if (mWifi.isConnected()){
-			
-			App.Log(App.D, "Is device connected to  wifi"," "+true);
-			return true;
+			ConnectivityManager connManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+			NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+
+			if (mWifi.isConnected()){
+
+				App.Log(App.D, "Is device connected to  wifi"," "+true);
+				return true;
+			}
+
+			App.Log(App.D,"Is device connected to  wifi"," "+false);
 		}
-
-		App.Log(App.D,"Is device connected to  wifi"," "+false);
-		
 		return false;
 	} // end of isConnectedToWIFI()
 

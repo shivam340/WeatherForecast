@@ -23,12 +23,12 @@ public class App
 	public static final int I=0, D=1, E=2, W=3, V=4;
 
 	/**URL for end point to access weather data*/
-	protected static final String URL_WEATHER = "http://api.openweathermap.org/data/2.5/weather?q=";
+	public static final String URL_WEATHER = "http://api.openweathermap.org/data/2.5/weather?q=";
 	/**URL for end point to access weather forecast data*/
-	protected static final String URL_FORECAST = "http://api.openweathermap.org/data/2.5/forecast/daily?q="; 
+	public static final String URL_FORECAST = "http://api.openweathermap.org/data/2.5/forecast/daily?q="; 
 
 	/**key to access data.*/
-	protected static final String API_KEY = "bf6729781b09c4ff7f4de85dc7d318d8";	
+	public static final String API_KEY = "bf6729781b09c4ff7f4de85dc7d318d8";	
 
 
 
