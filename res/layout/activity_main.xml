@@ -19,6 +19,9 @@
     android:layout_below="@id/txt_main_city_names"
     android:layout_height="wrap_content"
     android:layout_width="match_parent"
+    android:gravity="center"
+    android:layout_marginLeft="20dp"
+    android:layout_marginRight="20dp"
     android:id="@+id/edt_main_city_names"
     android:hint="@string/hint_main_edt"
     android:textSize="16sp"
@@ -30,14 +33,55 @@
     android:id="@+id/btn_main_show_data"
     android:layout_height="wrap_content"
     android:layout_width="match_parent"
+    android:layout_marginLeft="20dp"
+    android:layout_marginRight="20dp"
     android:text="@string/main_show_data"
+    android:gravity="center"
     />
 
+
+<View 
+    android:id="@+id/view_main_sep1"
+    android:layout_width="match_parent"
+    android:layout_height="1dp"
+    android:layout_marginTop="5dp"
+    android:layout_marginLeft="20dp"
+    android:layout_marginRight="20dp"
+    android:layout_below="@id/btn_main_show_data"
+	android:background="#ffffff"    
+    android:visibility="gone"
+    />
+
+<TextView 
+    android:id="@+id/txt_main_list_title"
+    android:layout_below="@id/btn_main_show_data"
+    android:layout_height="wrap_content"
+    android:layout_width="match_parent"
+    android:layout_marginLeft="20dp"
+    android:layout_marginRight="20dp"
+    android:text="click on city name to see weather details"
+    android:layout_marginTop="10dp"
+    android:visibility="gone"
+    />
+
+<View 
+    android:id="@+id/view_main_sep2"
+    android:layout_width="match_parent"
+    android:layout_height="1dp"
+    android:layout_marginTop="5dp"
+    android:layout_marginLeft="20dp"
+    android:layout_marginRight="20dp"
+    android:layout_below="@id/txt_main_list_title"
+	android:background="#ffffff"    
+	android:visibility="gone"
+    />
 <ListView 
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:id="@+id/list_main_data"
-    android:layout_below="@id/btn_main_show_data"
+    android:layout_marginLeft="20dp"
+    android:layout_marginRight="20dp"
+    android:layout_below="@id/txt_main_list_title"
     android:layout_marginTop="10dip"
     />
 
