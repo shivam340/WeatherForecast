@@ -1,6 +1,25 @@
 package com.example.weatherforecasting.activities;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.StatusLine;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.app.Activity;
+import android.app.ProgressDialog;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -10,8 +29,6 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import java.util.ArrayList;
-
 import com.example.weatherforecasting.R;
 import com.example.weatherforecasting.utilities.App;
 import com.example.weatherforecasting.utilities.ConnectionDetector;
@@ -19,18 +36,21 @@ import com.example.weatherforecasting.utilities.ConnectionDetector;
 public class MainActivity extends Activity {
 
 
-	private Button mButtonShowData;
-	private EditText mEditTextCityNames;
-	private ListView mList;
+	private Button mButtonShowData = null;
+	private EditText mEditTextCityNames = null ;
+	private ListView mList = null ;
 	private ArrayList<String> mCityItems  = new ArrayList<String>();
-	private ArrayAdapter<String> mAdapter; 
-
+	private ArrayAdapter<String> mAdapter = null; 
+	private Activity mActivity = null;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		
+
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+
+		mActivity = MainActivity.this;
+
 		initUi();
 
 	}// end of onCreate
@@ -42,15 +62,15 @@ public class MainActivity extends Activity {
 		mButtonShowData = (Button) findViewById(R.id.btn_main_show_data);
 		mEditTextCityNames = (EditText) findViewById(R.id.edt_main_city_names);
 		mList  = (ListView) findViewById(R.id.list_main_data);
-		
+
 		mButtonShowData.setOnClickListener(new HandleEventOnClick(R.id.btn_main_show_data));
 		mList.setOnItemClickListener(new HandleEventOnItemClick(R.id.list_main_data));
-		
+
 		mAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, android.R.id.text1, mCityItems);
-			
+
 		mList.setAdapter(mAdapter);
-		
-		
+
+
 	}// end of initUi
 
 
@@ -69,49 +89,50 @@ public class MainActivity extends Activity {
 		public void onClick(View view) {
 
 			switch (mId) {
-		
+
 			case R.id.btn_main_show_data:
 
-					if ( checkConditions() ) {
-						
-						// fetch weather data here
-					
-					}
-					else {
-						
-						App.Log(App.D, "criteria does not satisfied" ,"unable to fetch weather information");
-					}
-						
+				if ( checkConditions() ) {
+
+					// fetch weather data here
+				}
+				else {
+
+					App.Log(App.D, "criteria does not satisfied" ,"unable to fetch weather information");
+				}
+
 
 				break;
 
 			default:
 				break;
-			
+
 			}// end of switch cases
-		
+
 		}// end of onClick
 
-		
+
 		private boolean checkConditions() {
-			
+
 			String data = mEditTextCityNames.getText().toString();
-			
+
 			if(data != null) {
-			
+
 				if(data.trim().length()>0) {
-					
+
 					String cityNames[] = data.split(",");
 					App.Log(App.D,"city names are",""+data);
-					
+
 					if(cityNames!=null) {
-					
+
 						ConnectionDetector cd=new ConnectionDetector(getApplicationContext());
 						boolean isInternetPresent = cd.isConnectedToInternet();
 
 						if (isInternetPresent) {
-							
+
 							//everything is ok.
+							new AsyncFetchWeatherData().execute(cityNames);
+
 							return true;
 						} 
 						else {
@@ -119,30 +140,30 @@ public class MainActivity extends Activity {
 						}
 
 					}  //end of if cityNames!=null
-				
+
 				} // end of if data.length > 0
-				
+
 				else {
-					
+
 					Toast.makeText(getApplicationContext(), "Please fill up data properly.", Toast.LENGTH_SHORT).show();
 				}
-			
+
 			} //end of if data != null
-			
+
 			else {
 				Toast.makeText(getApplicationContext(), "Please Enter at least one city name.", Toast.LENGTH_SHORT).show();
 			}
 
-			
+
 			return false;
-			
+
 		}
-		
-		
+
+
 	}  // end of class HandleEventOnClick
 
-	
-	
+
+
 	private class HandleEventOnItemClick implements AdapterView.OnItemClickListener {
 
 		private int mId = 0;
@@ -156,23 +177,193 @@ public class MainActivity extends Activity {
 		@Override
 		public void onItemClick(AdapterView<?> arg0, View arg1, int position,
 				long arg3) {
-			
+
 			switch (mId) {
-			
+
 			case R.id.list_main_data:
-				
-				
+
+
 				break;
 
 			default:
 				break;
 			}// end of switch case
-			
-			
+
+
 		} // end of onItemClick()
-	
-		
+
+
 	}  // end of class HandleOnItemClick
-	
-	
+
+
+
+	private class AsyncFetchWeatherData extends AsyncTask<String, Integer, String> {
+
+		private ProgressDialog mProgressDialog = null;
+
+		@Override
+		protected void onPreExecute() {
+
+
+			if(mActivity!=null)
+			{
+				mProgressDialog = new ProgressDialog(mActivity, ProgressDialog.THEME_HOLO_LIGHT);
+				mProgressDialog.setMessage("Please wait ...loading a data");
+				mProgressDialog.setCancelable(false);
+				mProgressDialog.setCanceledOnTouchOutside(false);
+				mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+				mProgressDialog.show();
+			}
+
+		} // end of onPreExecute
+
+		@Override
+		protected String doInBackground(String... params) {
+
+
+			ConnectionDetector connectionDetector = new ConnectionDetector(getApplicationContext()); 
+
+			for(int i=0;i<params.length;i++) {
+
+				if(params[i].trim().length()>0 && connectionDetector.isConnectedToInternet()) {
+
+					if(download(params[i].trim())) {
+
+					}
+					else {
+
+						App.Log(App.D,"download data"," failed to publish ");
+					}
+
+				}
+				else {
+
+					App.Log(App.D,"invalid city name at position ", ""+(i+1));
+				}
+
+			}
+
+
+			return "failed";
+		} // end of doInBackground
+
+
+		@Override
+		protected void onPostExecute(String result) {
+
+			if(mProgressDialog!=null) {
+
+				mProgressDialog.dismiss();
+				mProgressDialog=null;
+			}
+
+
+		}  // end of onPostExecute
+
+
+		/** fetch weather data of given city
+		 * @param city name
+		 * @return true if data fetched successfully.
+		 */
+		public boolean download(String city) {
+
+			// initialize http connection
+			HttpClient client =new DefaultHttpClient();
+
+			HttpGet get=new HttpGet(App.URL_FORECAST+""+city+"&cnt=14&APPID="+App.API_KEY);
+
+			try {
+
+				HttpResponse response = client.execute(get);
+				StatusLine status=response.getStatusLine();
+
+				int code=status.getStatusCode();
+				if(code==200) { //ok
+
+					// get data
+					StringBuilder builder=new StringBuilder();
+					HttpEntity entity=response.getEntity();
+					InputStream is=entity.getContent();
+					BufferedReader br=new BufferedReader(new InputStreamReader(is));
+					String line = null ;
+
+					while((line=br.readLine())!=null) {
+
+						builder.append(line);
+					}
+
+					App.Log(App.D," Server response is     "," "+builder);
+
+					String statusPic=builder.toString();
+					builder=null;
+
+					if(statusPic.isEmpty()) {
+
+						return false;
+					}
+					else {
+
+						/*  data in json format will be 
+						 * 
+						 * {"cod":"200","message":0.0061,
+						 * "city":{"id":1259229,"name":"Pune","coord":{"lon":73.855347,"lat":18.519569}
+						 * ,"country":"IN","population":0,"sys":{"population":0}},"cnt":14,
+						 * "list":[{"dt":1418799600,"temp":{"day":294.99,"min":281.06,"max":294.99,"night":281.06,"eve":293.21,"morn":294.99}
+						 * ,"pressure":951.1,"humidity":40,
+						 * "weather":[{"id":800,"main":"Clear","description":"sky is clear","icon":"01d"}],"speed":4.36,"deg":77,"clouds":0},
+						 * {"dt":1418886000,"temp":{"day":292,"min":276.19,"max":295.35,"night":281.5,"eve":293.38,"morn":276.19}
+						 * ,"pressure":953.06,"humidity":39,
+						 * "weather":[{"id":800,"main":"Clear","description":"sky is clear","icon":"02d"}],"speed":4.92,"deg":98,"clouds":8},
+						 */
+
+						JSONObject jsonData=new JSONObject(statusPic);
+
+						if(jsonData.getString("cod").equals("200")) {
+
+							JSONArray list = jsonData.getJSONArray("list");
+
+							for(int i=0; i<list.length(); i++) {
+
+								App.Log(App.D,"list data is "+(i+1),list.getJSONObject(i).toString());
+								App.Log(App.D,"whether data is  "+(i+1),list.getJSONObject(i).getJSONArray("weather").toString());
+								App.Log(App.D,"temp data is  "+(i+1),list.getJSONObject(i).getJSONObject("temp").toString());
+								App.Log(App.D,"temp data is  "+(i+1),list.getJSONObject(i).getJSONObject("temp").toString());
+								App.Log(App.D,"temp data is  "+(i+1),list.getJSONObject(i).getJSONObject("temp").toString());
+
+							}
+
+							return true;
+
+						}  // end of if json cod==200
+
+						else {
+							return false;
+						}
+
+					}  // end of return data ! = empty
+
+				}   //  end of if http status code ==200
+
+			}  // end of try
+
+			catch (JSONException e) {
+
+				e.printStackTrace();
+			}
+
+			catch (ClientProtocolException e) {
+
+				e.printStackTrace();
+			} 
+			catch (IOException e) {
+
+				e.printStackTrace();
+			}
+
+			return false;
+
+		} // end of download()
+
+	} // end of AsyncFetchWeatherData
+
 } // end of MainActivity
