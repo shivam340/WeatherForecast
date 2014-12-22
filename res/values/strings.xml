@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">WhetherForcast</string>
+    <string name="app_name">WeatherForcasting</string>
     
 	<string name="api_key">bf6729781b09c4ff7f4de85dc7d318d8</string>
 	<string name="hint_main_txt">Enter name of city below. use , for more than one city</string>    
