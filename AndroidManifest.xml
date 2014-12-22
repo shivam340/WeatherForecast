@@ -30,6 +30,12 @@
         <activity
             android:name="com.example.weatherforecasting.activities.CityWeatherActivity"
         />
+        
+        
+        <activity
+            android:name="com.example.weatherforecasting.activities.CityOneDayActivity"
+        />
+        
     </application>
 
 </manifest>
