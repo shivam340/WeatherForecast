@@ -1,6 +1,8 @@
 package com.example.weatherforecasting.activities;
 
+
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -14,6 +16,10 @@ import com.example.weatherforecasting.adapters.SimpleCityAdapter;
 import com.example.weatherforecasting.models.DataModel;
 import com.example.weatherforecasting.utilities.App;
 
+/**
+ *  Displays weather details for 14 days
+ * @author shivam
+ */
 public class CityWeatherActivity  extends Activity {
 
 	private TextView mTextCityName;
@@ -67,6 +73,10 @@ public class CityWeatherActivity  extends Activity {
 				CityWeatherActivity.sInnerPosition= innnerPosition;
 				sData = MainActivity.sForcastModels.get(position).getDataModels().get(innnerPosition);
 
+					Intent intent = new Intent(CityWeatherActivity.this, CityOneDayActivity.class);
+					intent.putExtra("position", innnerPosition);
+				
+					startActivity(intent);
 			}
 		});
 
