@@ -3,8 +3,9 @@ package com.example.weatherforecasting.utilities;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.provider.Settings;
 import android.util.Log;
-
 
 import com.example.weatherforecasting.R;
 
@@ -119,4 +120,45 @@ public class App
 		}// end of try/catch
 
 	}// end of showAlertDialog() 
+
+
+
+
+	/**
+	 * shows  alert dialog with , open  Users Settings when click on setting option 
+	 * */
+	public static void showSettingsAlert(final Context mContext) {
+		
+		AlertDialog.Builder alertDialog = new AlertDialog.Builder(mContext);
+
+		// Setting Dialog Title
+		alertDialog.setTitle("Location Settings");
+
+		// Setting Dialog Message
+		alertDialog.setMessage("GPS is not enabled. Do you want to Enable it?");
+
+		// On pressing Settings button
+		alertDialog.setPositiveButton("Settings",new DialogInterface.OnClickListener() {
+			
+			public void onClick(DialogInterface dialog, int which) {
+				
+				Intent intent = new Intent( Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+				mContext.startActivity(intent);
+			}
+		});
+
+		// on pressing cancel button
+		alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+			
+			public void onClick(DialogInterface dialog, int which) {
+			
+				dialog.cancel();
+			
+			}
+		});
+
+		// Showing Alert Message
+		alertDialog.show();
+	}
+
 }
