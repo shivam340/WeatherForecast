@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -20,8 +22,14 @@ import org.json.JSONObject;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationListener;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -38,8 +46,9 @@ import com.example.weatherforecasting.models.TemperatureModel;
 import com.example.weatherforecasting.models.WhetherModel;
 import com.example.weatherforecasting.utilities.App;
 import com.example.weatherforecasting.utilities.ConnectionDetector;
+import com.example.weatherforecasting.utilities.UsersLocation;
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements LocationListener{
 
 
 	private Button mButtonShowData = null;
@@ -54,6 +63,7 @@ public class MainActivity extends Activity {
 	private ArrayList<ForcastModel> mLocalForCastData = new ArrayList<ForcastModel>() ;
 	public static ArrayList<ForcastModel> sForcastModels = new ArrayList<ForcastModel>();
 
+	private UsersLocation mLocation = null;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 
@@ -65,6 +75,117 @@ public class MainActivity extends Activity {
 		initUi();
 
 	}// end of onCreate
+
+
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+
+		super.onCreateOptionsMenu(menu);
+		getMenuInflater().inflate(R.menu.menu, menu);
+
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+
+		super.onOptionsItemSelected(item);
+
+		switch(item.getItemId()) {
+
+		case R.id.menu_current_city_weather:
+
+			mLocation = new UsersLocation(MainActivity.this, getApplicationContext());
+			App.Log(App.D, "Lattitude is ", ""+mLocation.getLatitude());
+			App.Log(App.D, "Longitude is ", ""+mLocation.getLongitude());
+
+			if(mLocation!=null )
+			{
+				if(mLocation.getLatitude()!=-1 && mLocation.getLongitude()!=-1)
+				{
+					String cityName = "Not Found";                 
+					Geocoder gcd = new Geocoder(getBaseContext(), Locale.getDefault());        
+					try 
+					{  
+						List<Address> addresses = gcd.getFromLocation(mLocation.getLatitude(), mLocation.getLongitude(), 1);  
+						if (addresses.size() > 0) 
+						{ 
+							cityName = addresses.get(0).getLocality();  
+							App.Log(App.D, "CityName is ",""+cityName); 
+						}
+					} catch (IOException e) 
+					{                 
+						e.printStackTrace();  
+					}
+
+					if(!cityName.equalsIgnoreCase("Not Found"))
+					{
+						mEditTextCityNames.setText(""+cityName);
+					
+						ConnectionDetector cd=new ConnectionDetector(getApplicationContext());
+						boolean isInternetPresent = cd.isConnectedToInternet();
+
+						if (isInternetPresent) {
+
+							new AsyncFetchWeatherData().execute(""+cityName);
+
+							return true;
+						} 
+						else {
+							App.ShowAlertDialog(MainActivity.this, "No Internet Connection","You don't have internet connection.", false);
+						}
+
+						
+						
+					}
+				}
+				else
+				{
+					Toast.makeText(getApplicationContext(), "Unable to get location, please try later",Toast.LENGTH_SHORT).show();
+				}	
+			}
+			else
+			{
+				Toast.makeText(getApplicationContext(), "Unable to get location, please try later",Toast.LENGTH_SHORT).show();
+			}
+
+
+		}
+
+
+		return true;
+	}
+
+
+	@Override
+	public void onLocationChanged(Location location) {
+
+
+		UsersLocation.sLocation = location;
+		UsersLocation.sLatitude = location.getLatitude();
+		UsersLocation.sLongitude = location.getLongitude();
+
+		App.Log(App.D,"Location1 is ", ""+location.getLatitude());
+		App.Log(App.D,"Location1 is ", ""+location.getLongitude());
+
+		Toast.makeText(getApplicationContext(), "got location.", Toast.LENGTH_SHORT).show();
+
+		mLocation.stopUsingGPS();
+
+	}
+
+	@Override
+	public void onProviderDisabled(String provider) {
+	}
+
+	@Override
+	public void onProviderEnabled(String provider) {
+	}
+
+	@Override
+	public void onStatusChanged(String provider, int status, Bundle extras) {
+	}
 
 
 
@@ -107,7 +228,6 @@ public class MainActivity extends Activity {
 
 				if ( checkConditions() ) {
 
-					// fetch weather data here
 				}
 				else {
 
@@ -196,11 +316,14 @@ public class MainActivity extends Activity {
 			case R.id.list_main_data:
 
 				Toast.makeText(getApplicationContext(), ""+sForcastModels.get(position).getName(), Toast.LENGTH_SHORT).show();
-				
+
+
+
+
 				Intent intent = new Intent(MainActivity.this, CityWeatherActivity.class);
 				intent.putExtra("position",position);
 				startActivity(intent);
-	
+
 
 				break;
 
@@ -228,7 +351,7 @@ public class MainActivity extends Activity {
 			{
 				sForcastModels.clear();
 			}
-			
+
 			if(!mCityItems.isEmpty())
 			{
 				mCityItems.clear();
@@ -245,8 +368,8 @@ public class MainActivity extends Activity {
 			{
 				mLocalForCastData.clear();
 			}
-		
-			
+
+
 			if(mActivity!=null)
 			{
 				mProgressDialog = new ProgressDialog(mActivity, ProgressDialog.THEME_HOLO_LIGHT);
@@ -259,49 +382,49 @@ public class MainActivity extends Activity {
 
 		} // end of onPreExecute
 
-		
-		
+
+
 		@Override
 		public void onProgressUpdate(Integer... pa) {
-		
-			
+
+
 			if(mProgressDialog!=null) {
-				
-					mProgressDialog.dismiss();
-					mProgressDialog=null;
+
+				mProgressDialog.dismiss();
+				mProgressDialog=null;
 			}
-			
-			
+
+
 			try {
-			
+
 				for(int i=0;i<mLocalForCastData.size();i++) {
-					
+
 					if(!sForcastModels.contains(mLocalForCastData.get(i))) {
-						
+
 						sForcastModels.add(mLocalForCastData.get(i));
 						mCityItems.add(sForcastModels.get(i).getName());
-			
+
 						mTextViewListTitle.setVisibility(View.VISIBLE);
 						mViewSep1.setVisibility(View.VISIBLE);
 						mViewSep2.setVisibility(View.VISIBLE);
-						
+
 						if(mAdapter!=null) {
-							
+
 							mAdapter.notifyDataSetChanged();
-							
+
 						}
 					}
 				}
-			
-				
+
+
 			}
 			catch(Exception ex)
 			{
 				ex.printStackTrace();
 			}
-			
+
 		}
-		
+
 
 		@Override
 		protected String doInBackground(String... params) {
@@ -316,7 +439,7 @@ public class MainActivity extends Activity {
 					if(download(params[i].trim())) {
 
 						publishProgress(1);
-						
+
 					}
 					else {
 
@@ -345,16 +468,16 @@ public class MainActivity extends Activity {
 				mProgressDialog=null;
 			}
 
-			
+
 			for(int i=0;i<mLocalForCastData.size();i++) {
-				
+
 				if(!sForcastModels.contains(mLocalForCastData.get(i))) {
-					
+
 					sForcastModels.add(mLocalForCastData.get(i));
 					mCityItems.add(sForcastModels.get(i).getName());
-					
+
 					if(mAdapter!=null) {
-						
+
 						mAdapter.notifyDataSetChanged();
 					}
 				}
@@ -424,34 +547,34 @@ public class MainActivity extends Activity {
 
 							for(int i=0; i<list.length(); i++) {
 
-					
+
 								DataModel dataModel= insertDataInModel(city,list.getJSONObject(i));
-								
+
 								if(dataModel!=null) {
 									mLocalData.add(dataModel);
 								}
 								else {
 									App.Log(App.D, "Download ","No Data  ");
 								}
-								
-/*								App.Log(App.D,"list data is "+(i+1),list.getJSONObject(i).toString());
+
+								/*								App.Log(App.D,"list data is "+(i+1),list.getJSONObject(i).toString());
 								App.Log(App.D,"whether data is  "+(i+1),list.getJSONObject(i).getJSONArray("weather").toString());
 								App.Log(App.D,"temp data is  "+(i+1),list.getJSONObject(i).getJSONObject("temp").toString());
 								App.Log(App.D,"temp data is  "+(i+1),list.getJSONObject(i).getJSONObject("temp").toString());
 								App.Log(App.D,"temp data is  "+(i+1),list.getJSONObject(i).getJSONObject("temp").toString());
-*/
+								 */
 							}
-							
+
 							App.Log(App.D, " data model 2  size is ",""+mLocalData.size());
-							
+
 							if(!mLocalData.isEmpty()) {
-								
+
 								App.Log(App.D, " data model 2  size is ",""+mLocalData.size());
 								ForcastModel forcastModel = new ForcastModel(city, mLocalData);
 								mLocalForCastData.add(forcastModel);
 								mLocalData.clear();
 							}
-									
+
 
 							return true;
 
@@ -470,25 +593,25 @@ public class MainActivity extends Activity {
 			catch (JSONException e) {
 
 				App.Log(App.E, "Error while parsing json Data in download()", ""+e.getMessage());
-				
+
 			}
 
 			catch (ClientProtocolException e) {
 
 				App.Log(App.E, "Error while fetching  Data in download() clientProtcolException. ", ""+e.getMessage());
-				
+
 			} 
 			catch (IOException e) {
 
 				App.Log(App.E, "Error while fectching  Data in download() IOException. ", ""+e.getMessage());
-				
+
 			}
 
 			return false;
 
 		} // end of download()
 
-		
+
 		/**
 		 *  takes json object and return DataModel for given city 
 		 * @param String name
@@ -496,69 +619,69 @@ public class MainActivity extends Activity {
 		 * @return object of DataModel
 		 */
 		private DataModel insertDataInModel(String Name, JSONObject data) {
-			
+
 			try {
-			
-		/*{"day":294.99,"min":281.06,"max":294.99,"night":281.06,"eve":293.21,"morn":294.99}
-		 */
-				
+
+				/*{"day":294.99,"min":281.06,"max":294.99,"night":281.06,"eve":293.21,"morn":294.99}
+				 */
+
 				App.Log(App.D, "list data is ",data.toString());
-				
+
 				App.Log(App.D, "whether data is  ",""+data.getJSONArray("weather").toString());
 				App.Log(App.D, "temp data is  ",""+data.getJSONObject("temp"));
 				/*App.log("temp data is  ",list.getJSONObject(i).getJSONObject("temp").toString());
 				App.log("temp data is  ",list.getJSONObject(i).getJSONObject("temp").toString());
-				*/
-			JSONObject temp = data.getJSONObject("temp");
-			TemperatureModel temperatureModel = new TemperatureModel(temp.getDouble("day"), temp.getDouble("night"),temp.getDouble("morn"), temp.getDouble("eve"),temp.getDouble("min"), temp.getDouble("max"));
+				 */
+				JSONObject temp = data.getJSONObject("temp");
+				TemperatureModel temperatureModel = new TemperatureModel(temp.getDouble("day"), temp.getDouble("night"),temp.getDouble("morn"), temp.getDouble("eve"),temp.getDouble("min"), temp.getDouble("max"));
 
-			
-			App.Log(App.D, "Temp  ",""+temperatureModel.getDay());
-			App.Log(App.D, "Temp  ",""+temperatureModel.getNight());
-			App.Log(App.D, "Temp  ",""+temperatureModel.getMorn());
-			App.Log(App.D, "Temp  ",""+temperatureModel.getEve());
-			App.Log(App.D, "Temp  ",""+temperatureModel.getMin());
-			App.Log(App.D, "Temp  ",""+temperatureModel.getMax());
-			
-		
-			
-			/* [{"id":800,"main":"Clear","description":"sky is clear","icon":"01d"}]
-			 */
-			JSONArray whetherArray = data.getJSONArray("weather");
-			JSONObject whetherObject = whetherArray.getJSONObject(0);
 
-			WhetherModel whetherModel = new WhetherModel(whetherObject.getString("description"), whetherObject.getString("icon"), whetherObject.getString("id"), whetherObject.getString("main"));
+				App.Log(App.D, "Temp  ",""+temperatureModel.getDay());
+				App.Log(App.D, "Temp  ",""+temperatureModel.getNight());
+				App.Log(App.D, "Temp  ",""+temperatureModel.getMorn());
+				App.Log(App.D, "Temp  ",""+temperatureModel.getEve());
+				App.Log(App.D, "Temp  ",""+temperatureModel.getMin());
+				App.Log(App.D, "Temp  ",""+temperatureModel.getMax());
 
-			App.Log(App.D, "Wheather  ",""+whetherModel.getDescription());
-			App.Log(App.D, "Wheather ",""+whetherModel.getMain());
-			App.Log(App.D, "pressure ",""+data.getDouble("pressure"));
-			App.Log(App.D, "speed ",""+data.getDouble("speed"));
-			App.Log(App.D, "deg ",""+data.getDouble("deg"));
-			App.Log(App.D, "clouds ",""+data.getDouble("clouds"));
-			
-	/*		12-17 16:59:53.815: D/list data is 1(22878): {"dt":1418799600,"temp":{"day":294.99,"min":281.06,"max":294.99,"night":281.06,"eve":293.21,"morn":294.99},"pressure":951.1,
-	 * "humidity":40,"weather":[{"id":800,"main":"Clear","description":"sky is clear","icon":"01d"}],"speed":4.36,"deg":77,"clouds":0}
+
+
+				/* [{"id":800,"main":"Clear","description":"sky is clear","icon":"01d"}]
+				 */
+				JSONArray whetherArray = data.getJSONArray("weather");
+				JSONObject whetherObject = whetherArray.getJSONObject(0);
+
+				WhetherModel whetherModel = new WhetherModel(whetherObject.getString("description"), whetherObject.getString("icon"), whetherObject.getString("id"), whetherObject.getString("main"));
+
+				App.Log(App.D, "Wheather  ",""+whetherModel.getDescription());
+				App.Log(App.D, "Wheather ",""+whetherModel.getMain());
+				App.Log(App.D, "pressure ",""+data.getDouble("pressure"));
+				App.Log(App.D, "speed ",""+data.getDouble("speed"));
+				App.Log(App.D, "deg ",""+data.getDouble("deg"));
+				App.Log(App.D, "clouds ",""+data.getDouble("clouds"));
+
+				/*		12-17 16:59:53.815: D/list data is 1(22878): {"dt":1418799600,"temp":{"day":294.99,"min":281.06,"max":294.99,"night":281.06,"eve":293.21,"morn":294.99},"pressure":951.1,
+				 * "humidity":40,"weather":[{"id":800,"main":"Clear","description":"sky is clear","icon":"01d"}],"speed":4.36,"deg":77,"clouds":0}
 			12-17 16:59:53.815: D/whether data is  1(22878): [{"id":800,"main":"Clear","description":"sky is clear","icon":"01d"}]
-	*/
-			DataModel dataModel = new DataModel( temperatureModel, whetherModel, data.getDouble("humidity"), data.getDouble("pressure"),data.getDouble("speed"),data.getDouble("deg"),data.getDouble("clouds"));
-			
-			
-			return dataModel;
-			
+				 */
+				DataModel dataModel = new DataModel( temperatureModel, whetherModel, data.getDouble("humidity"), data.getDouble("pressure"),data.getDouble("speed"),data.getDouble("deg"),data.getDouble("clouds"));
+
+
+				return dataModel;
+
 			}
-			
+
 			catch (JSONException e) {
 
 				App.Log(App.E, "Error while parsing json Data in insertDataInModel()", ""+e.getMessage());
 			}
 
 
-			
+
 			return null;
-			
+
 		} // end of insertDataInModel()
-		
-		
+
+
 	} // end of AsyncFetchWeatherData
 
 } // end of MainActivity
