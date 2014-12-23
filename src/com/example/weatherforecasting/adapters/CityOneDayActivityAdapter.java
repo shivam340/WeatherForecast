@@ -95,7 +95,7 @@ public class CityOneDayActivityAdapter extends PagerAdapter  {
 	public View initUi(View view, int position) {
 		
 		mTextTitle = (TextView) view.findViewById(R.id.txt_day_title);
-		mTextTitle.setText("day "+(position+1)+" Weather Details For "+MainActivity.sForcastModels.get(CityWeatherActivity.sPosition).getName());
+		mTextTitle.setText("Day "+(position+1)+" Weather Details For "+MainActivity.sForcastModels.get(CityWeatherActivity.sPosition).getName());
 		
 		mTextDay = (TextView) view.findViewById(R.id.txt_day_daytemp);
 		mTextNight = (TextView) view.findViewById(R.id.txt_day_nighttemp);
