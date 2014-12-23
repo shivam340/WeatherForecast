@@ -31,6 +31,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -54,7 +55,7 @@ public class MainActivity extends Activity implements LocationListener{
 	private Button mButtonShowData = null;
 	private EditText mEditTextCityNames = null ;
 	private ListView mList = null ;
-	private TextView mTextViewListTitle = null;
+	private TextView mTextViewListTitle = null, mTextViewDetailsNotAvailable = null;
 	private View mViewSep1 = null , mViewSep2 =null;
 	private ArrayList<String> mCityItems  = new ArrayList<String>();
 	private ArrayAdapter<String> mAdapter = null; 
@@ -191,10 +192,17 @@ public class MainActivity extends Activity implements LocationListener{
 
 	private void initUi() {
 
+		
+		// to stop keyboard popping up automatically
+		getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+
+		
 		mButtonShowData = (Button) findViewById(R.id.btn_main_show_data);
 		mEditTextCityNames = (EditText) findViewById(R.id.edt_main_city_names);
 		mList  = (ListView) findViewById(R.id.list_main_data);
 		mTextViewListTitle  = (TextView) findViewById(R.id.txt_main_list_title);
+		mTextViewDetailsNotAvailable  = (TextView) findViewById(R.id.txt_main_details_not_avai);
+
 		mViewSep1  = findViewById(R.id.view_main_sep1);
 		mViewSep2  = findViewById(R.id.view_main_sep2);
 
@@ -346,7 +354,14 @@ public class MainActivity extends Activity implements LocationListener{
 		@Override
 		protected void onPreExecute() {
 
+			
+			mTextViewListTitle.setVisibility(View.GONE);
+			mViewSep1.setVisibility(View.GONE);
+			mViewSep2.setVisibility(View.GONE);
+			mList.setVisibility(View.GONE);
 
+			
+			
 			if(!sForcastModels.isEmpty())
 			{
 				sForcastModels.clear();
@@ -407,6 +422,7 @@ public class MainActivity extends Activity implements LocationListener{
 						mTextViewListTitle.setVisibility(View.VISIBLE);
 						mViewSep1.setVisibility(View.VISIBLE);
 						mViewSep2.setVisibility(View.VISIBLE);
+						mList.setVisibility(View.VISIBLE);
 
 						if(mAdapter!=null) {
 
@@ -454,8 +470,15 @@ public class MainActivity extends Activity implements LocationListener{
 
 			}
 
-
-			return "failed";
+			if(sForcastModels.isEmpty()) {
+				
+				return "failed";	
+			}
+			else {
+				
+				return "success";
+			}
+			
 		} // end of doInBackground
 
 
@@ -469,6 +492,8 @@ public class MainActivity extends Activity implements LocationListener{
 			}
 
 
+			
+			
 			for(int i=0;i<mLocalForCastData.size();i++) {
 
 				if(!sForcastModels.contains(mLocalForCastData.get(i))) {
@@ -481,6 +506,15 @@ public class MainActivity extends Activity implements LocationListener{
 						mAdapter.notifyDataSetChanged();
 					}
 				}
+			}
+			
+			if(sForcastModels.isEmpty()) {
+				
+				mTextViewDetailsNotAvailable.setVisibility(View.VISIBLE);
+			}
+			else {
+				
+				mTextViewDetailsNotAvailable.setVisibility(View.GONE);
 			}
 
 		}  // end of onPostExecute
