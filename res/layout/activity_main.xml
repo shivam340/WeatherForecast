@@ -8,9 +8,11 @@
     android:layout_marginTop="10dip"
     android:layout_height="wrap_content"
     android:layout_width="match_parent"
+    android:layout_marginLeft="20dp"
+    android:layout_marginRight="20dp"
     android:id="@+id/txt_main_city_names"
     android:text="@string/hint_main_txt"
-    android:textSize="20sp"
+    android:textSize="16sp"
     />
     
     
@@ -48,7 +50,7 @@
     android:layout_marginLeft="20dp"
     android:layout_marginRight="20dp"
     android:layout_below="@id/btn_main_show_data"
-	android:background="#ffffff"    
+	android:background="#000000"    
     android:visibility="gone"
     />
 
@@ -72,7 +74,7 @@
     android:layout_marginLeft="20dp"
     android:layout_marginRight="20dp"
     android:layout_below="@id/txt_main_list_title"
-	android:background="#ffffff"    
+	android:background="#000000"    
 	android:visibility="gone"
     />
 <ListView 
