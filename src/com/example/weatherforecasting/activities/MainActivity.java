@@ -101,60 +101,59 @@ public class MainActivity extends Activity implements LocationListener{
 			App.Log(App.D, "Lattitude is ", ""+mLocation.getLatitude());
 			App.Log(App.D, "Longitude is ", ""+mLocation.getLongitude());
 
-			if(mLocation!=null )
-			{
-				if(mLocation.getLatitude()!=-1 && mLocation.getLongitude()!=-1)
-				{
-					String cityName = "Not Found";                 
-					Geocoder gcd = new Geocoder(getBaseContext(), Locale.getDefault());        
-					try 
-					{  
-						List<Address> addresses = gcd.getFromLocation(mLocation.getLatitude(), mLocation.getLongitude(), 1);  
-						if (addresses.size() > 0) 
-						{ 
-							cityName = addresses.get(0).getLocality();  
-							App.Log(App.D, "CityName is ",""+cityName); 
+			if(mLocation!=null ) {
+
+				if(mLocation.getLatitude()!=-1 && mLocation.getLongitude()!=-1) {
+
+
+					ConnectionDetector cd=new ConnectionDetector(getApplicationContext());
+					boolean isInternetPresent = cd.isConnectedToInternet();
+
+					if (isInternetPresent) {
+
+						String cityName = "Not Found";                 
+						Geocoder gcd = new Geocoder(getBaseContext(), Locale.getDefault());        
+
+						try  {  
+
+							List<Address> addresses = gcd.getFromLocation(mLocation.getLatitude(), mLocation.getLongitude(), 1);  
+							if (addresses.size() > 0) {
+
+								cityName = addresses.get(0).getLocality();  
+								App.Log(App.D, "CityName is ",""+cityName); 
+							}
 						}
-					} catch (IOException e) 
-					{                 
-						e.printStackTrace();  
-					}
+						catch (IOException ex)	{
 
-					if(!cityName.equalsIgnoreCase("Not Found"))
-					{
-						mEditTextCityNames.setText(""+cityName);
-					
-						ConnectionDetector cd=new ConnectionDetector(getApplicationContext());
-						boolean isInternetPresent = cd.isConnectedToInternet();
+							App.Log(App.D,"Error in geoCoder",""+ex.getMessage());  
+						}
 
-						if (isInternetPresent) {
+						if(!cityName.equalsIgnoreCase("Not Found")) {
+
+							mEditTextCityNames.setText(""+cityName);
 
 							new AsyncFetchWeatherData().execute(""+cityName);
 
 							return true;
 						} 
-						else {
-							App.ShowAlertDialog(MainActivity.this, "No Internet Connection","You don't have internet connection.", false);
-						}
-
-						
-						
+						else
+						{
+							Toast.makeText(getApplicationContext(), "Unable to get location, please try later",Toast.LENGTH_SHORT).show();
+						}	
 					}
-				}
-				else
-				{
-					Toast.makeText(getApplicationContext(), "Unable to get location, please try later",Toast.LENGTH_SHORT).show();
-				}	
-			}
-			else
-			{
-				Toast.makeText(getApplicationContext(), "Unable to get location, please try later",Toast.LENGTH_SHORT).show();
-			}
 
+					else {
+						App.ShowAlertDialog(MainActivity.this, "No Internet Connection","You don't have internet connection.", false);
+					}
+
+				}
+				else {
+					Toast.makeText(getApplicationContext(), "Unable to get location, please try later",Toast.LENGTH_SHORT).show();
+				}
+
+			}
 
 		}
-
-
 		return true;
 	}
 
@@ -192,11 +191,11 @@ public class MainActivity extends Activity implements LocationListener{
 
 	private void initUi() {
 
-		
+
 		// to stop keyboard popping up automatically
 		getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
-		
+
 		mButtonShowData = (Button) findViewById(R.id.btn_main_show_data);
 		mEditTextCityNames = (EditText) findViewById(R.id.edt_main_city_names);
 		mList  = (ListView) findViewById(R.id.list_main_data);
@@ -354,14 +353,14 @@ public class MainActivity extends Activity implements LocationListener{
 		@Override
 		protected void onPreExecute() {
 
-			
+
 			mTextViewListTitle.setVisibility(View.GONE);
 			mViewSep1.setVisibility(View.GONE);
 			mViewSep2.setVisibility(View.GONE);
 			mList.setVisibility(View.GONE);
 
-			
-			
+
+
 			if(!sForcastModels.isEmpty())
 			{
 				sForcastModels.clear();
@@ -471,14 +470,14 @@ public class MainActivity extends Activity implements LocationListener{
 			}
 
 			if(sForcastModels.isEmpty()) {
-				
+
 				return "failed";	
 			}
 			else {
-				
+
 				return "success";
 			}
-			
+
 		} // end of doInBackground
 
 
@@ -492,8 +491,8 @@ public class MainActivity extends Activity implements LocationListener{
 			}
 
 
-			
-			
+
+
 			for(int i=0;i<mLocalForCastData.size();i++) {
 
 				if(!sForcastModels.contains(mLocalForCastData.get(i))) {
@@ -507,13 +506,13 @@ public class MainActivity extends Activity implements LocationListener{
 					}
 				}
 			}
-			
+
 			if(sForcastModels.isEmpty()) {
-				
+
 				mTextViewDetailsNotAvailable.setVisibility(View.VISIBLE);
 			}
 			else {
-				
+
 				mTextViewDetailsNotAvailable.setVisibility(View.GONE);
 			}
 
